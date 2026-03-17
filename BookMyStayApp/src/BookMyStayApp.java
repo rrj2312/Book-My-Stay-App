@@ -21,7 +21,6 @@ public class BookMyStayApp {
             bookings.put(name, type);
         }
 
-        // 3. Track the room ID counters for each room type
         Map<String, Integer> roomCounters = new HashMap<>();
 
         System.out.println("\n--- Room Allocation Processing ---");
