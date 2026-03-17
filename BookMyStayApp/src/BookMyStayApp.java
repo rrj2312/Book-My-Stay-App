@@ -1,31 +1,45 @@
-import java.util.LinkedList;
-import java.util.Queue;
-
-class BookingRequest {
-    String guestName;
-    String roomType;
-
-    BookingRequest(String guestName, String roomType) {
-        this.guestName = guestName;
-        this.roomType = roomType;
-    }
-}
+import java.util.*;
 
 public class BookMyStayApp {
     public static void main(String[] args) {
-        // Create the queue and add the requests in order
-        Queue<BookingRequest> queue = new LinkedList<>();
-        queue.add(new BookingRequest("Abhi", "Single"));
-        queue.add(new BookingRequest("Subha", "Double"));
-        queue.add(new BookingRequest("Vanmathi", "Suite"));
+        Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Booking Request Queue");
+        // 1. Ask how many guests to process
+        System.out.print("Enter number of bookings to process: ");
+        int numberOfBookings = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
 
-        // Process the queue until it is empty
-        while (!queue.isEmpty()) {
-            BookingRequest request = queue.poll(); // Removes the head of the queue
-            System.out.println("Processing booking for Guest: " + request.guestName +
-                    ", Room Type: " + request.roomType);
+        // 2. Collect guest data using a LinkedHashMap to preserve order
+        Map<String, String> bookings = new LinkedHashMap<>();
+        for (int i = 1; i <= numberOfBookings; i++) {
+            System.out.println("\nBooking #" + i);
+            System.out.print("Enter Guest Name: ");
+            String name = scanner.nextLine();
+            System.out.print("Enter Room Type (Single/Double/Suite): ");
+            String type = scanner.nextLine();
+
+            bookings.put(name, type);
         }
+
+        // 3. Track the room ID counters for each room type
+        Map<String, Integer> roomCounters = new HashMap<>();
+
+        System.out.println("\n--- Room Allocation Processing ---");
+
+        // 4. Process the bookings and generate the output
+        for (Map.Entry<String, String> entry : bookings.entrySet()) {
+            String guestName = entry.getKey();
+            String roomType = entry.getValue();
+
+            // Increment the specific counter for this room type
+            roomCounters.put(roomType, roomCounters.getOrDefault(roomType, 0) + 1);
+            int currentNumber = roomCounters.get(roomType);
+
+            // Print the required output format
+            System.out.println("Booking confirmed for Guest: " + guestName +
+                    ", Room ID: " + roomType + "-" + currentNumber);
+        }
+
+        scanner.close();
     }
 }
