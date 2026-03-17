@@ -1,44 +1,76 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
+// Data model representing a confirmed reservation
+class Reservation {
+    private int bookingId;
+    private String guestName;
+    private String roomType;
+    private double amount;
+
+    public Reservation(int bookingId, String guestName, String roomType, double amount) {
+        this.bookingId = bookingId;
+        this.guestName = guestName;
+        this.roomType = roomType;
+        this.amount = amount;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("ID: %d | Guest: %-12s | Room: %-10s | Total: $%.2f",
+                bookingId, guestName, roomType, amount);
+    }
+
+    public double getAmount() { return amount; }
+}
+
+// Service to handle reporting (Separation of Concerns)
+class BookingReportService {
+    public void generateSummaryReport(List<Reservation> history) {
+        System.out.println("\n--- BOOKING SUMMARY REPORT ---");
+        if (history.isEmpty()) {
+            System.out.println("No records found.");
+            return;
+        }
+
+        double totalRevenue = 0;
+        for (Reservation res : history) {
+            System.out.println(res);
+            totalRevenue += res.getAmount();
+        }
+        System.out.println("------------------------------");
+        System.out.printf("Total Bookings: %d\n", history.size());
+        System.out.printf("Total Revenue:  $%.2f\n", totalRevenue);
+        System.out.println("------------------------------");
+    }
+}
+
+// Main application class
 public class BookMyStayApp {
+    // Booking History - maintains a record of confirmed reservations
+    private List<Reservation> bookingHistory = new ArrayList<>();
+    private BookingReportService reportService = new BookingReportService();
+
+    // Flow: Confirmed reservation is added to history
+    public void confirmBooking(int id, String name, String type, double price) {
+        Reservation newBooking = new Reservation(id, name, type, price);
+        bookingHistory.add(newBooking); // Records kept in insertion order
+        System.out.println("System: Booking confirmed and added to history for " + name);
+    }
+
+    public void adminRequestsReports() {
+        reportService.generateSummaryReport(bookingHistory);
+    }
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        BookMyStayApp app = new BookMyStayApp();
 
-        // 1. Ask how many guests to process
-        System.out.print("Enter number of bookings to process: ");
-        int numberOfBookings = scanner.nextInt();
-        scanner.nextLine(); // Consume the newline character
+        // Simulate booking flows
+        app.confirmBooking(101, "Alice Smith", "Deluxe", 250.00);
+        app.confirmBooking(102, "Bob Johnson", "Standard", 150.00);
+        app.confirmBooking(103, "Charlie Day", "Luxury", 500.00);
 
-        // 2. Collect guest data using a LinkedHashMap to preserve order
-        Map<String, String> bookings = new LinkedHashMap<>();
-        for (int i = 1; i <= numberOfBookings; i++) {
-            System.out.println("\nBooking #" + i);
-            System.out.print("Enter Guest Name: ");
-            String name = scanner.nextLine();
-            System.out.print("Enter Room Type (Single/Double/Suite): ");
-            String type = scanner.nextLine();
-
-            bookings.put(name, type);
-        }
-
-        Map<String, Integer> roomCounters = new HashMap<>();
-
-        System.out.println("\n--- Room Allocation Processing ---");
-
-        // 4. Process the bookings and generate the output
-        for (Map.Entry<String, String> entry : bookings.entrySet()) {
-            String guestName = entry.getKey();
-            String roomType = entry.getValue();
-
-            // Increment the specific counter for this room type
-            roomCounters.put(roomType, roomCounters.getOrDefault(roomType, 0) + 1);
-            int currentNumber = roomCounters.get(roomType);
-
-            // Print the required output format
-            System.out.println("Booking confirmed for Guest: " + guestName +
-                    ", Room ID: " + roomType + "-" + currentNumber);
-        }
-
-        scanner.close();
+        // Admin requests reports
+        app.adminRequestsReports();
     }
 }
